@@ -102,7 +102,6 @@ let loginBtnAdd = document.querySelector('#login-btn');
 
 function addProduct() {
        let users = getUsersFromStorage();
-       let userObj = users.find(item => item.name == userNameLog.value);
 
        let prodObj = {
               img: prodImg.value,
@@ -164,30 +163,29 @@ function addProduct() {
 
 prodBtnAdd.addEventListener('click', addProduct);
 
+let getProductsBtn = document.querySelector('#get-products');
 
+// render start
 function render() {
        let container = document.querySelector('.container');
        container.innerHTML = '';
-       // let data = getProductsFromStorage();
        fetch('http://localhost:8000/products')
               .then((result) => result.json())
               .then((data) => {
                      data.forEach(item => {
                             container.innerHTML += `
-                            <div class="card w-25 m-2" style="width: 18rem;" id = "${item.title}">
+                            <div class="card w-25 m-2" style="width: 18rem;" id = "${item.id}">
                                    <img src="${item.img}" class="card-img-top" alt="error:(" height = "250">
-                                   <div class="card-body bg-info bg-opacity-25">
+                                   <div class="card-body bg-light bg-opacity-50">
                                           <h5 class="card-title">${item.title}</h5>
                                           <hr>
-                                          <p class="card-text"><b>Phone:</b> ${item.price}</p>
+                                          <p class="card-text"><b>Price:</b> ${item.price}</p>
                                           <hr>
-                                          <p class="card-text"><b>Email:</b> ${item.author}</p>
-                                          <hr>
-                                          <hr>
-                                          <a href="#" class="btn btn-danger delete-contact-btn">Delete <i class="bi bi-trash"></i></a>
-                                          <a href="#" class="btn btn-warning update-contact-btn"    
+                                          <p class="card-text"><b>Author:</b> ${item.author}</p>
+                                          <a href="#" class="btn btn-danger del-prod-btn">Delete <i class="bi bi-trash"></i></a>
+                                          <a href="#" class="btn btn-primary upd-prod-btn"    
                                           data-bs-toggle="modal"
-                                          data-bs-target="#staticBackdrop">Update <i class="bi bi-gear"></i></a>
+                                          data-bs-target="#staticBackdrop4">Update <i class="bi bi-gear"></i></a>
                                    </div>
                           </div>`;
                      })
@@ -195,4 +193,47 @@ function render() {
                      if (data.length === 0) return;
               })
 }
+document.addEventListener('DOMContentLoaded', render);
+getProductsBtn.addEventListener('click', render)
+// render end
+
+// update product
+
+let updImgInp = document.querySelector('#prod-url-upd');
+let updTitleInp = document.querySelector('#prod-title-upd');
+let updPriceInp = document.querySelector('#prod-price-upd');
+
+function updateProd() {
+       let userObj = users.find(item => item.name == userNameLog.value);
+
+       let users = getUsersFromStorage();
+       if(!userObj.isAdmin)
+       fetch('http://localhost:8000/products')
+              .then((result) => result.json())
+              .then(products)
        
+       updImgInp.value = 
+       updTitleInp.value = 
+       updPriceInp.value = 
+
+       fetch(`http://localhost:8000/products/${productID}`, {
+              method: 'PATCH',
+              body: JSON.stringify(
+                     {
+                            img: newImg.value,
+                            title: newTitle.value,
+                            price: newPrice.value
+                     }
+              ),
+              headers: {
+                     "Content-Type": "application/json;charset=utf-8"
+              }
+       })
+};
+
+function addUpdateEvent() {
+
+       let updateBtns = document.querySelectorAll('.upd-prod-btn');
+       // console.log(updateBtns);
+       updateBtns.forEach(item => item.addEventListener('click', updateProd))
+};

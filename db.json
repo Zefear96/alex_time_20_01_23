@@ -1,18 +1,18 @@
 {
   "products": [
     {
-      "img": "",
-      "title": "",
-      "price": "",
-      "author": "alex3",
-      "id": 1
-    },
-    {
       "img": "http://www.sberbank.ru/common/img/uploaded/files/widgets.certificatecheckbanner/71f43f24011f14c65385.png",
       "title": "man",
       "price": "200",
       "author": "alex3",
       "id": 2
+    },
+    {
+      "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR70wcodEdX63HH2b56mfjYvC9NWPkKiYzIztqQ8eScCVbNobkaYW7aQRKldSfP23yJpjk&usqp=CAU",
+      "title": "moto",
+      "price": "2000",
+      "author": "alex3",
+      "id": 3
     }
   ]
 }
