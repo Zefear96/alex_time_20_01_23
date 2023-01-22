@@ -1,58 +1,18 @@
 {
-  "db": [
+  "products": [
     {
-      "img": "a",
-      "title": "a",
-      "price": "1",
+      "img": "",
+      "title": "",
+      "price": "",
+      "author": "alex3",
       "id": 1
     },
     {
-      "img": "a",
-      "title": "a",
-      "price": "1",
+      "img": "http://www.sberbank.ru/common/img/uploaded/files/widgets.certificatecheckbanner/71f43f24011f14c65385.png",
+      "title": "man",
+      "price": "200",
+      "author": "alex3",
       "id": 2
-    },
-    {
-      "img": "a",
-      "title": "a",
-      "price": "1",
-      "id": 3
-    },
-    {
-      "img": "a",
-      "title": "a",
-      "price": "1",
-      "id": 4
-    },
-    {
-      "img": "ss",
-      "title": "ss",
-      "price": "1",
-      "id": 5
-    },
-    {
-      "img": "q",
-      "title": "q",
-      "price": "1",
-      "id": 6
-    },
-    {
-      "img": "q",
-      "title": "",
-      "price": "",
-      "id": 7
-    },
-    {
-      "img": "",
-      "title": "",
-      "price": "",
-      "id": 8
-    },
-    {
-      "img": "",
-      "title": "",
-      "price": "",
-      "id": 9
     }
   ]
 }

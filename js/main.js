@@ -51,7 +51,7 @@ function createUsers() {
               isAdmin: false
        };
        
-       if (adminCheck.checked === true) {
+       if (adminCheck.checked == true) {
               userObj.isAdmin = true
        }
 
@@ -62,7 +62,7 @@ function createUsers() {
               return
        };
 
-       if (userPass.value !== userPassConf.value) {
+       if (userPass.value != userPassConf.value) {
               alert('Passwords dont match!')
               return
        };
@@ -86,130 +86,113 @@ let userNameLog = document.querySelector('#username-login');
 let userPassLog = document.querySelector('#userpass-login');
 let loginBtn = document.querySelector('#login-btn')
 
-function getUserObj() {
+function updUser() {
        let users = getUsersFromStorage();
-       return users.find(item => item.name === userNameLog.value)
+       users = users.filter(item => item.name != userNameLog.value && item.isLogin != false)
+       setUsersToStorage(users) 
+
 }
-
-function login() {
-       let user = getUserObj();
-       if (user.name !== userNameLog.value) {
-              alert('Invalid username')
-              return
-       } 
-
-       if (user.password !== userPassLog.value) {
-              alert('Invalid password')
-              return
-       } 
-
-       user.isLogin = true
-       setUsersToStorage(user)
-}
-
-loginBtn.addEventListener('click', login)
 
 let prodImg = document.querySelector('#prod-url-inp');
 let prodTitle = document.querySelector('#prod-title-inp');
 let prodPrice = document.querySelector('#prod-price-inp');
-let prodBtnAdd = document.querySelector('.add-prod-btn');
-// console.log(prodImg, prodTitle);
+let prodBtnAdd = document.querySelector('#add-prod-btn');
+let loginBtnAdd = document.querySelector('#login-btn');
+// console.log(prodBtnAdd);
 
 function addProduct() {
-       login()
+       let users = getUsersFromStorage();
+       let userObj = users.find(item => item.name == userNameLog.value);
+
        let prodObj = {
               img: prodImg.value,
               title: prodTitle.value,
-              price: prodPrice.value
+              price: prodPrice.value,
+              author: ''
        }
 
-              fetch('http://localhost:8000/db', {
-              method: 'POST',
-              body: JSON.stringify(prodObj),
-              headers: {
-                     "Content-Type": "application/json;charset=utf-8"
-              }
-              });
+       function login() {
+              let users = getUsersFromStorage();
+              let userObj = users.find(item => item.name == userNameLog.value);
        
-       let btnClose = document.querySelector('.btn-close-prod');
+              if (!userObj) {
+                     alert('Invalid username or username not found!')
+                     return
+              }
+       
+              if (userObj.password !== userPassLog.value) {
+                     alert('Invalid password')
+                     return
+              }
+       
+              userObj.isLogin = true
+       
+              setUsersToStorage(users)
+              
+              userNameLog.value = '';
+              userPassLog.value = '';
+       
+              let btnClose = document.querySelector('#btn-close-login');
+              btnClose.click();       
+
+              if (userObj.isAdmin !== true) {
+                     alert('You are not admin!')
+                     return
+              }
+              
+              prodObj.author = userObj.name
+
+              fetch('http://localhost:8000/products', {
+                     method: 'POST',
+                     body: JSON.stringify(prodObj),
+                     headers: {
+                            "Content-Type": "application/json;charset=utf-8"
+                     }
+              });
+       };
+
+       prodImg.value = '';
+       prodTitle.value = '';
+       prodPrice.value = '';
+       
+       loginBtnAdd.addEventListener('click', login)
+
+       let btnClose = document.querySelector('#btn-close-prod');
        btnClose.click();
 
 }
 
 prodBtnAdd.addEventListener('click', addProduct);
 
-// delete 
-// function deleteContact(e) {
-//        let contactId = e.target.parentNode.parentNode.id;
-//        let contacts = getContactsFromStorage();
-//        contacts = contacts.filter(item => item.id != contactId);
-//        setContactsToStorage(contacts);
-//        render()
-//      };
-     
-// function addDeleteEvent () {
-//        let delBtns = document.querySelectorAll('.delete-contact-btn');
-//        // console.log(delBtns);
-//        delBtns.forEach(item => item.addEventListener('click', deleteContact))
-// };
 
-// // update
-// function updateContact(e) {
-//        let contactId = e.target.parentNode.parentNode.id;
-//        // console.log(productId);
-//        let contacts = getContactsFromStorage();
-//        let contactObj = contacts.find(item => item.id == contactId);
-//        imgInp.value = contactObj.url;
-//        nameInp.value = contactObj.name;
-//        phoneInp.value = contactObj.phone;
-//        emailInp.value = contactObj.email;
-//        addressInp.value = contactObj.address;
-
-//        saveChangesBtn.setAttribute('id', contactId);
-// };
-
-// function addUpdateEvent() {
-//        let updateBtns = document.querySelectorAll('.update-contact-btn');
-//        // console.log(updateBtns);
-//        updateBtns.forEach(item => item.addEventListener('click', updateContact))
-// };
-
-// function saveChanges(e) {
-//        if (!saveChangesBtn.id) return;
-//        let contacts = getContactsFromStorage();
-//        let contactObj = contacts.find(item => item.id == saveChangesBtn.id)
-//        // console.log(productObj); 
-//        contactObj.url = imgInp.value;
-//        contactObj.name = nameInp.value;
-//        contactObj.phone = phoneInp.value;
-//        contactObj.email = emailInp.value;
-//        contactObj.address = addressInp.value;
-
-//        setContactsToStorage(contacts);
-//        saveChangesBtn.removeAttribute('id');
-
-//        imgInp.value = '';
-//        nameInp.value = '';
-//        phoneInp.value = '';
-//        emailInp.value = '';
-//        addressInp.value = '';
-
-//        let btnClose = document.querySelector('.btn-close');
-//        btnClose.click();
-
-//        render()
-// };
-
-// saveChangesBtn.addEventListener('click', saveChanges);
-
-// search
-// let searchInp = document.querySelector('#search-inp');
-// searchInp.addEventListener('input', e => {
-//        // console.log(e.target.value);
-//        let contacts = getContactsFromStorage();
-//        contacts = contacts.filter(item => {
-//               return item.name.toLowerCase().indexOf(e.target.value.toLowerCase()) !== -1;
-//        });
-//        // console.log(products);
-//        render(contacts);
-// });
+function render() {
+       let container = document.querySelector('.container');
+       container.innerHTML = '';
+       // let data = getProductsFromStorage();
+       fetch('http://localhost:8000/products')
+              .then((result) => result.json())
+              .then((data) => {
+                     data.forEach(item => {
+                            container.innerHTML += `
+                            <div class="card w-25 m-2" style="width: 18rem;" id = "${item.title}">
+                                   <img src="${item.img}" class="card-img-top" alt="error:(" height = "250">
+                                   <div class="card-body bg-info bg-opacity-25">
+                                          <h5 class="card-title">${item.title}</h5>
+                                          <hr>
+                                          <p class="card-text"><b>Phone:</b> ${item.price}</p>
+                                          <hr>
+                                          <p class="card-text"><b>Email:</b> ${item.author}</p>
+                                          <hr>
+                                          <hr>
+                                          <a href="#" class="btn btn-danger delete-contact-btn">Delete <i class="bi bi-trash"></i></a>
+                                          <a href="#" class="btn btn-warning update-contact-btn"    
+                                          data-bs-toggle="modal"
+                                          data-bs-target="#staticBackdrop">Update <i class="bi bi-gear"></i></a>
+                                   </div>
+                          </div>`;
+                     })
+                     
+                     if (data.length === 0) return;
+              })
+}
+       
