@@ -174,7 +174,7 @@ function render() {
               .then((data) => {
                      data.forEach(item => {
                             container.innerHTML += `
-                            <div class="card w-25 m-2" style="width: 18rem;" id = "${item.id}">
+                            <div class="card w-25 m-2" style="width: 18rem;" title="${item.title}">
                                    <img src="${item.img}" class="card-img-top" alt="error:(" height = "250">
                                    <div class="card-body bg-light bg-opacity-50">
                                           <h5 class="card-title">${item.title}</h5>
@@ -182,15 +182,18 @@ function render() {
                                           <p class="card-text"><b>Price:</b> ${item.price}</p>
                                           <hr>
                                           <p class="card-text"><b>Author:</b> ${item.author}</p>
-                                          <a href="#" class="btn btn-danger del-prod-btn">Delete <i class="bi bi-trash"></i></a>
+                                          <a href="#" class="btn btn-danger del-prod-btn"
+                                          title="${item.title}" id="${item.id}">Delete <i class="bi bi-trash"></i></a>
                                           <a href="#" class="btn btn-primary upd-prod-btn"    
                                           data-bs-toggle="modal"
-                                          data-bs-target="#staticBackdrop4">Update <i class="bi bi-gear"></i></a>
+                                          data-bs-target="#staticBackdrop3" title="${item.title}" id="${item.id}">Update <i class="bi bi-gear"></i></a>
                                    </div>
                           </div>`;
                      })
                      
-                     if (data.length === 0) return;
+                     // if (data.length === 0) return;
+                     addUpdateEvent()
+                     addDeleteEvent()
               })
 }
 document.addEventListener('DOMContentLoaded', render);
@@ -199,41 +202,101 @@ getProductsBtn.addEventListener('click', render)
 
 // update product
 
-let updImgInp = document.querySelector('#prod-url-upd');
-let updTitleInp = document.querySelector('#prod-title-upd');
-let updPriceInp = document.querySelector('#prod-price-upd');
 
-function updateProd() {
-       let userObj = users.find(item => item.name == userNameLog.value);
+
+function updateProd (e) {
 
        let users = getUsersFromStorage();
-       if(!userObj.isAdmin)
-       fetch('http://localhost:8000/products')
-              .then((result) => result.json())
-              .then(products)
+   
+       if (!e.target.title) return; 
+       let prodTitle = e.target.title;
+   
+       let res = fetch('http://localhost:8000/products') 
+              .then(result => result.json())
+              .then(products => {
+              
+       let productObj = products.find(item => item.title == prodTitle);
+       console.log(productObj);
        
-       updImgInp.value = 
-       updTitleInp.value = 
-       updPriceInp.value = 
-
-       fetch(`http://localhost:8000/products/${productID}`, {
-              method: 'PATCH',
-              body: JSON.stringify(
-                     {
-                            img: newImg.value,
-                            title: newTitle.value,
-                            price: newPrice.value
-                     }
-              ),
-              headers: {
-                     "Content-Type": "application/json;charset=utf-8"
-              }
-       })
-};
-
-function addUpdateEvent() {
-
-       let updateBtns = document.querySelectorAll('.upd-prod-btn');
-       // console.log(updateBtns);
+       prodImg.value = productObj.img;
+       prodTitle.value = productObj.title;
+       prodPrice.value = productObj.price;
+   
+       console.log(productObj.title);
+       addSaveEvent() 
+       }); 
+   }
+   
+   function addUpdateEvent () {
+       let updateBtns = document.querySelectorAll('.upd-prod-btn')
        updateBtns.forEach(item => item.addEventListener('click', updateProd))
-};
+   };
+   
+   function addSaveEvent () {
+       let saveBtns = document.querySelectorAll('.save-product-btn');
+       saveBtns.forEach(item => item.addEventListener('click', saveChanges))
+   };
+   
+   //функция изменения
+   function saveChanges (e) {
+   
+       if (!e.target.id) return;
+       let prodId = e.target.id;
+       console.log(prodId);
+   
+       let res = fetch('http://localhost:8000/products')
+           .then(result => result.json())
+           .then(products => {
+               let productObj = products.find(item => item.author == e.target.title);
+   
+               if (!productObj) {
+                   alert('You are not an admin')
+                   return;
+               }
+   
+               fetch(`http://localhost:8000/products/${prodId}`, { //отправка запроса на частичное изменение
+                   method: 'PATCH',
+                   body: JSON.stringify(
+                       {
+                           img: prodImg.value,
+                           title: prodTitle.value,
+                           price: prodPrice.value
+                       }
+                   ),
+                   headers: {
+                       "Content-Type": "application/json;charset=utf-8" //раскодируй и прочитай как чистый json
+                   }
+               });
+   
+               e.target.removeAttribute('id')
+               e.target.removeAttribute('title')
+   
+               prodImg.value = '';
+               prodTitle.value = '';
+               prodPrice.value = '';
+   
+               let btnCloseChanges = document.querySelector('.btn-close-product')
+               btnCloseChanges.click()
+           
+               render()
+           });
+   }
+   
+   //логика удаления продукта, если человек админ
+   function deleteProduct (e) {
+       console.log(e.target.id);
+       if (!e.target.id) return;
+       let prodId = e.target.id;
+   
+       let res = fetch(`http://localhost:8000/products/${prodId}`, 
+       { 
+           method: "DELETE"
+       })
+   
+       render()
+   }
+   
+   function addDeleteEvent () {
+       let delBtns = document.querySelectorAll('.del-prod-btn');
+       delBtns.forEach(item => item.addEventListener('click', deleteProduct))
+   }
